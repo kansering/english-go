@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnglishGo — 出國英文速成</title>
+<style>
+:root {
+  --green:#58CC02; --green-dark:#46A302; --green-light:#D7FFB8;
+  --blue:#1CB0F6; --blue-dark:#0095D9; --blue-light:#D0F0FF;
+  --red:#FF4B4B; --red-light:#FFE0E0;
+  --yellow:#FFC800; --purple:#CE82FF; --orange:#FF9600;
+  --gray-50:#F7F7F7; --gray-100:#EBEBEB; --gray-200:#E5E5E5;
+  --gray-400:#AFAFAF; --gray-600:#777; --gray-900:#3C3C3C;
+  --white:#FFFFFF; --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,'Noto Sans TC','Microsoft JhengHei',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;}
+
+/* ── Screens ── */
+.screen{display:none;}
+.screen.active{display:block;}
+#screen-complete.active,#screen-nohearts.active{display:flex;}
+
+/* ══════ HOME ══════ */
+.home-header{
+  background:var(--white);border-bottom:2px solid var(--gray-200);
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-owl{font-size:30px;}
+.logo-text{font-size:19px;font-weight:900;color:var(--green);}
+.logo-sub{font-size:11px;color:var(--gray-600);font-weight:600;}
+
+.stats-row{display:flex;align-items:center;gap:10px;}
+.stat-chip{
+  display:flex;align-items:center;gap:5px;
+  font-size:14px;font-weight:800;
+  padding:5px 11px;border-radius:8px;
+  border:2px solid var(--gray-200);background:var(--white);
+}
+.stat-chip.streak{color:var(--orange);border-color:#FFCF77;}
+.stat-chip.xp{color:#CC9A00;border-color:#FFE680;}
+.stat-chip.hearts{color:var(--red);border-color:#FFB3B3;}
+
+.home-body{max-width:500px;margin:0 auto;padding:20px 16px 100px;}
+.section-label{font-size:12px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;margin-top:20px;}
+
+/* countdown banner */
+.countdown-banner{
+  background:linear-gradient(135deg,#1CB0F6,#0066CC);
+  color:white;border-radius:16px;padding:16px 20px;
+  margin-bottom:20px;display:flex;align-items:center;gap:16px;
+}
+.cb-icon{font-size:36px;}
+.cb-text h3{font-size:16px;font-weight:800;margin-bottom:4px;}
+.cb-text p{font-size:13px;opacity:.85;line-height:1.5;}
+.cb-days{
+  background:rgba(255,255,255,.2);
+  border-radius:10px;padding:10px 16px;text-align:center;flex-shrink:0;
+}
+.cb-days .days-num{font-size:28px;font-weight:900;}
+.cb-days .days-label{font-size:11px;opacity:.85;}
+
+/* Unit cards */
+.unit-card{
+  background:var(--white);border-radius:18px;
+  border:2px solid var(--gray-200);margin-bottom:14px;
+  overflow:hidden;transition:transform .12s,box-shadow .12s;
+}
+.unit-card:not(.locked):hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.09);}
+.unit-card.locked{opacity:.55;}
+.unit-header{display:flex;align-items:center;gap:14px;padding:16px 18px;}
+.unit-emoji{
+  width:54px;height:54px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;
+}
+.unit-info{flex:1;}
+.unit-title{font-size:16px;font-weight:800;margin-bottom:3px;}
+.unit-sub{font-size:12px;color:var(--gray-600);line-height:1.4;}
+.unit-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.badge-done{background:var(--green-light);color:var(--green-dark);}
+.badge-new{background:var(--blue-light);color:var(--blue-dark);}
+.badge-lock{background:var(--gray-100);color:var(--gray-400);}
+
+.unit-progress-bar{height:7px;background:var(--gray-100);}
+.unit-progress-fill{height:100%;background:var(--green);transition:width .4s;}
+
+.start-btn{
+  display:block;width:calc(100% - 32px);margin:12px 16px 16px;
+  padding:13px;border:none;border-radius:var(--radius);
+  font-size:15px;font-weight:800;color:var(--white);
+  background:var(--green);box-shadow:0 4px 0 var(--green-dark);
+  cursor:pointer;transition:all .1s;font-family:inherit;
+}
+.start-btn:hover{filter:brightness(1.05);}
+.start-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--green-dark);}
+.start-btn:disabled{background:var(--gray-400);box-shadow:0 4px 0 #999;cursor:not-allowed;}
+
+/* phrase sheet button */
+.sheet-btn{
+  display:block;width:calc(100% - 32px);margin:0 16px 14px;
+  padding:10px;border:2px solid var(--blue);border-radius:var(--radius);
+  font-size:13px;font-weight:700;color:var(--blue);
+  background:var(--blue-light);cursor:pointer;font-family:inherit;transition:all .1s;
+}
+.sheet-btn:hover{background:var(--blue);color:white;}
+
+/* ══════ PHRASE SHEET MODAL ══════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;
+  display:none;align-items:flex-end;
+}
+.modal-overlay.open{display:flex;}
+.sheet-panel{
+  background:var(--white);width:100%;max-width:520px;margin:0 auto;
+  border-radius:20px 20px 0 0;padding:20px 20px 40px;
+  max-height:85vh;overflow-y:auto;
+  animation:slideUp .22s ease;
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sheet-title{font-size:18px;font-weight:900;}
+.sheet-close{background:var(--gray-100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;}
+.phrase-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:11px 0;border-bottom:1px solid var(--gray-100);
+}
+.phrase-row:last-child{border-bottom:none;}
+.phrase-en{font-size:15px;font-weight:700;flex:1;}
+.phrase-zh{font-size:13px;color:var(--gray-600);margin-top:3px;}
+.phrase-play{
+  background:var(--blue-light);border:none;width:36px;height:36px;
+  border-radius:10px;cursor:pointer;font-size:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.phrase-play:hover{background:var(--blue);color:white;}
+
+/* ══════ LESSON SCREEN ══════ */
+.lesson-header{
+  background:var(--white);padding:13px 16px 11px;
+  border-bottom:2px solid var(--gray-200);
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:100;
+}
+.close-btn{
+  background:none;border:none;font-size:20px;cursor:pointer;
+  color:var(--gray-600);padding:4px 6px;border-radius:8px;transition:background .1s;
+  font-family:inherit;
+}
+.close-btn:hover{background:var(--gray-100);}
+.progress-track{flex:1;height:16px;background:var(--gray-200);border-radius:8px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--green);border-radius:8px;transition:width .4s ease;}
+.hearts-display{font-size:16px;letter-spacing:2px;flex-shrink:0;}
+
+.exercise-wrap{max-width:520px;margin:0 auto;padding:24px 16px 140px;}
+
+.q-type-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;color:var(--gray-600);
+  text-transform:uppercase;letter-spacing:1px;
+  background:var(--gray-100);border-radius:6px;
+  padding:4px 10px;margin-bottom:14px;
+}
+.q-text{font-size:21px;font-weight:800;margin-bottom:6px;line-height:1.4;}
+.q-sub{font-size:14px;color:var(--gray-600);margin-bottom:22px;line-height:1.5;}
+
+/* Options (translate / listen) */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.option-btn{
+  padding:13px 10px;border:2px solid var(--gray-200);
+  background:var(--white);border-radius:var(--radius);
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:all .12s;font-family:inherit;color:var(--gray-900);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  box-shadow:0 2px 0 var(--gray-200);min-height:72px;justify-content:center;
+  text-align:center;
+}
+.option-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-light);box-shadow:0 2px 0 var(--blue-dark);}
+.option-btn.selected{border-color:var(--blue);background:var(--blue-light);box-shadow:0 2px 0 var(--blue-dark);}
+.option-btn.correct{border-color:var(--green);background:var(--green-light);box-shadow:0 2px 0 var(--green-dark);color:var(--green-dark);}
+.option-btn.wrong{border-color:var(--red);background:var(--red-light);box-shadow:0 2px 0 #cc0000;color:var(--red);}
+.option-btn:disabled{cursor:default;}
+.opt-emoji{font-size:22px;}
+.opt-text{font-size:13px;font-weight:700;line-height:1.3;}
+
+/* Listen card */
+.listen-card{
+  text-align:center;padding:28px 24px;
+  background:var(--white);border:2px solid var(--gray-200);
+  border-radius:20px;margin-bottom:18px;cursor:pointer;transition:all .15s;
+}
+.listen-card:hover{border-color:var(--blue);transform:scale(1.015);}
+.listen-icon{font-size:44px;margin-bottom:6px;}
+.listen-text{font-size:28px;font-weight:900;color:var(--gray-900);}
+.listen-pronun{font-size:13px;color:var(--gray-600);margin-top:5px;}
+.listen-hint{font-size:12px;color:var(--blue);margin-top:4px;font-weight:600;}
+
+/* Arrange */
+.sentence-slots{
+  min-height:54px;background:var(--white);
+  border:2px solid var(--gray-200);border-bottom:4px solid var(--gray-200);
+  border-radius:var(--radius);padding:10px 12px;
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;
+}
+.slot-placeholder{color:var(--gray-400);font-size:13px;align-self:center;}
+.word-bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.word-chip{
+  padding:8px 13px;border:2px solid var(--gray-200);
+  border-bottom:4px solid var(--gray-200);
+  background:var(--white);border-radius:10px;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:all .1s;font-family:inherit;color:var(--gray-900);
+}
+.word-chip:hover:not(.used):not(.in-slot){border-color:var(--blue);background:var(--blue-light);}
+.word-chip.used{opacity:.28;cursor:not-allowed;}
+.word-chip.in-slot{border-color:var(--blue);background:var(--blue-light);border-bottom-color:var(--blue-dark);}
+.word-chip.correct{border-color:var(--green);background:var(--green-light);border-bottom-color:var(--green-dark);color:var(--green-dark);cursor:default;}
+.word-chip.wrong{border-color:var(--red);background:var(--red-light);border-bottom-color:#cc0000;color:var(--red);cursor:default;}
+
+/* Speak exercise */
+.speak-card{
+  background:var(--white);border:2px solid var(--gray-200);
+  border-radius:18px;padding:20px;margin-bottom:16px;
+}
+.speak-phrase{
+  font-size:24px;font-weight:900;color:var(--gray-900);
+  margin-bottom:6px;line-height:1.3;
+}
+.speak-pronun{font-size:13px;color:var(--gray-600);margin-bottom:10px;}
+.speak-tip{
+  display:flex;gap:8px;align-items:flex-start;
+  background:#FFFBEB;border-radius:10px;padding:10px 12px;
+  font-size:13px;color:#92620A;
+}
+.speak-tip-icon{font-size:16px;flex-shrink:0;}
+
+.speak-controls{display:flex;gap:10px;margin-bottom:12px;}
+.speak-btn{
+  flex:1;padding:14px;border:none;border-radius:var(--radius);
+  font-size:14px;font-weight:800;cursor:pointer;
+  font-family:inherit;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-play{background:var(--blue-light);color:var(--blue-dark);border:2px solid var(--blue);}
+.btn-play:hover{background:var(--blue);color:white;}
+.btn-record{background:var(--red-light);color:var(--red);border:2px solid var(--red);}
+.btn-record:hover{background:var(--red);color:white;}
+.btn-record.recording{background:var(--red);color:white;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+.rec-result{
+  min-height:44px;background:var(--gray-50);border:2px solid var(--gray-200);
+  border-radius:10px;padding:10px 14px;font-size:13px;
+  color:var(--gray-600);display:flex;align-items:center;gap:8px;
+}
+.rec-result.heard{color:var(--gray-900);}
+.rec-result.correct{background:var(--green-light);border-color:var(--green);color:var(--green-dark);}
+.rec-result.wrong{background:var(--red-light);border-color:var(--red);color:var(--red);}
+
+.skip-link{
+  text-align:center;margin-top:10px;
+  font-size:13px;color:var(--gray-400);cursor:pointer;
+  text-decoration:underline;
+}
+.skip-link:hover{color:var(--gray-600);}
+
+/* Feedback bar */
+.feedback-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:14px 20px 22px;display:none;
+  align-items:center;gap:14px;z-index:200;
+  border-top:2px solid transparent;
+}
+.feedback-bar.correct{background:var(--green-light);border-color:var(--green);}
+.feedback-bar.wrong{background:var(--red-light);border-color:var(--red);}
+.fb-icon{font-size:26px;}
+.fb-content{flex:1;}
+.fb-title{font-size:16px;font-weight:900;}
+.feedback-bar.correct .fb-title{color:var(--green-dark);}
+.feedback-bar.wrong .fb-title{color:var(--red);}
+.fb-sub{font-size:13px;margin-top:3px;}
+.feedback-bar.correct .fb-sub{color:var(--green-dark);}
+.feedback-bar.wrong .fb-sub{color:var(--red);}
+.next-btn{
+  padding:13px 22px;border:none;border-radius:var(--radius);
+  font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;
+  box-shadow:0 3px 0;white-space:nowrap;
+}
+.feedback-bar.correct .next-btn{background:var(--green);color:white;box-shadow:0 3px 0 var(--green-dark);}
+.feedback-bar.wrong .next-btn{background:var(--red);color:white;box-shadow:0 3px 0 #aa0000;}
+.next-btn:active{transform:translateY(2px);}
+
+/* Check area */
+.check-area{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:14px 20px 24px;
+  background:linear-gradient(transparent,var(--gray-50) 28%);
+  pointer-events:none;
+}
+.check-btn{
+  display:block;width:100%;max-width:480px;margin:0 auto;
+  padding:15px;border:none;border-radius:var(--radius);
+  font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;
+  transition:all .1s;pointer-events:all;
+}
+.check-btn.active{background:var(--green);color:white;box-shadow:0 4px 0 var(--green-dark);}
+.check-btn.active:active{transform:translateY(2px);box-shadow:0 2px 0 var(--green-dark);}
+.check-btn.inactive{background:var(--gray-200);color:var(--gray-600);box-shadow:0 4px 0 #ccc;cursor:not-allowed;}
+
+/* ══════ COMPLETE SCREEN ══════ */
+#screen-complete{
+  min-height:100vh;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px 24px;background:var(--white);
+}
+.complete-owl{font-size:80px;margin-bottom:10px;animation:bounce .6s ease infinite alternate;}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}
+.complete-title{font-size:26px;font-weight:900;margin-bottom:6px;}
+.complete-sub{font-size:15px;color:var(--gray-600);margin-bottom:26px;}
+
+.xp-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--yellow);border-radius:16px;
+  padding:12px 24px;font-size:22px;font-weight:900;
+  margin-bottom:28px;box-shadow:0 4px 0 #CC9F00;
+}
+.stats-row-complete{display:flex;gap:14px;margin-bottom:32px;flex-wrap:wrap;justify-content:center;}
+.sc-item{
+  display:flex;flex-direction:column;align-items:center;
+  padding:14px 20px;border-radius:14px;border:2px solid var(--gray-200);
+  min-width:90px;
+}
+.sc-item .sci-val{font-size:24px;font-weight:900;}
+.sc-item .sci-label{font-size:11px;color:var(--gray-600);font-weight:700;margin-top:3px;}
+.sc-item.acc .sci-val{color:var(--blue);}
+.sc-item.ts .sci-val{color:var(--purple);}
+.sc-item.xp .sci-val{color:#CC9F00;}
+
+.home-btn{
+  display:block;width:100%;max-width:320px;padding:15px;
+  border:none;border-radius:var(--radius);font-size:16px;font-weight:800;
+  cursor:pointer;font-family:inherit;background:var(--green);color:white;
+  box-shadow:0 4px 0 var(--green-dark);transition:all .1s;
+}
+.home-btn:active{transform:translateY(2px);}
+
+/* ══════ NO HEARTS ══════ */
+#screen-nohearts{
+  min-height:100vh;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px 24px;background:var(--white);
+}
+.nh-icon{font-size:72px;margin-bottom:14px;}
+.nh-title{font-size:24px;font-weight:900;color:var(--red);margin-bottom:8px;}
+.nh-sub{font-size:14px;color:var(--gray-600);margin-bottom:28px;line-height:1.6;}
+.refill-btn{
+  display:block;width:100%;max-width:300px;padding:14px;
+  border:none;border-radius:var(--radius);font-size:15px;font-weight:800;
+  cursor:pointer;font-family:inherit;background:var(--red);color:white;
+  box-shadow:0 4px 0 #AA0000;transition:all .1s;margin-bottom:12px;
+}
+.refill-btn:active{transform:translateY(2px);}
+
+/* ── Animations ── */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.shake{animation:shake .4s ease;}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+.pop{animation:pop .25s ease;}
+
+/* Confetti */
+.confetti-piece{
+  position:fixed;pointer-events:none;z-index:9999;
+  width:10px;height:10px;border-radius:2px;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+@media(max-width:380px){
+  .options-grid{grid-template-columns:1fr;}
+  .q-text{font-size:18px;}
+  .stats-row-complete{gap:8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="logo">
+      <span class="logo-owl">🦉</span>
+      <div>
+        <div class="logo-text">EnglishGo</div>
+        <div class="logo-sub">出國英文速成</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-chip streak">🔥 <span id="stat-streak">0</span></div>
+      <div class="stat-chip xp">⚡ <span id="stat-xp">0</span></div>
+      <div class="stat-chip hearts"><span id="stat-hearts">❤️❤️❤️</span></div>
+    </div>
+  </div>
+  <div class="home-body">
+    <div class="countdown-banner">
+      <div class="cb-icon">✈️</div>
+      <div class="cb-text">
+        <h3>出國倒數計時</h3>
+        <p>七月底出國，把這6個單元<br>學完你就能開口聊天！</p>
+      </div>
+      <div class="cb-days">
+        <div class="days-num" id="daysLeft">—</div>
+        <div class="days-label">天後出發</div>
+      </div>
+    </div>
+    <div class="section-label">學習路線（共6關）</div>
+    <div id="homeBody"></div>
+  </div>
+</div>
+
+<!-- ══════════════ LESSON ══════════════ -->
+<div id="screen-lesson" class="screen">
+  <div class="lesson-header">
+    <button class="close-btn" onclick="goHome()">✕</button>
+    <div class="progress-track">
+      <div class="progress-fill" id="lessonProgress" style="width:0%"></div>
+    </div>
+    <div class="hearts-display" id="lessonHearts"></div>
+  </div>
+  <div class="exercise-wrap" id="exerciseWrap"></div>
+  <div class="check-area" id="checkArea">
+    <button class="check-btn inactive" id="checkBtn" onclick="checkAnswer()">確認</button>
+  </div>
+  <div class="feedback-bar" id="feedbackBar">
+    <div class="fb-icon" id="fbIcon"></div>
+    <div class="fb-content">
+      <div class="fb-title" id="fbTitle"></div>
+      <div class="fb-sub" id="fbSub"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextExercise()">繼續</button>
+  </div>
+</div>
+
+<!-- ══════════════ COMPLETE ══════════════ -->
+<div id="screen-complete" class="screen">
+  <div class="complete-owl">🦉</div>
+  <div class="complete-title">太棒了！</div>
+  <div class="complete-sub" id="completeSub"></div>
+  <div class="xp-badge">⚡ <span id="xpGained">+0 XP</span></div>
+  <div class="stats-row-complete">
+    <div class="sc-item acc"><span class="sci-val" id="cAcc">—</span><span class="sci-label">正確率</span></div>
+    <div class="sc-item ts"><span class="sci-val" id="cTime">—</span><span class="sci-label">時間</span></div>
+    <div class="sc-item xp"><span class="sci-val" id="cXP">—</span><span class="sci-label">獲得 XP</span></div>
+  </div>
+  <button class="home-btn" onclick="goHome()">🏠 返回首頁</button>
+</div>
+
+<!-- ══════════════ NO HEARTS ══════════════ -->
+<div id="screen-nohearts" class="screen">
+  <div class="nh-icon">💔</div>
+  <div class="nh-title">愛心用完了！</div>
+  <div class="nh-sub">別灰心，答錯是學習的一部分。<br>補充愛心繼續練習吧！</div>
+  <button class="refill-btn" onclick="refillHearts()">❤️ 補充愛心，繼續</button>
+  <button class="home-btn" style="background:var(--gray-200);color:var(--gray-700);box-shadow:0 4px 0 #aaa;" onclick="goHome()">返回首頁</button>
+</div>
+
+<!-- Phrase Sheet Modal -->
+<div class="modal-overlay" id="phraseModal" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet-panel">
+    <div class="sheet-header">
+      <div class="sheet-title" id="sheetTitle"></div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button>
+    </div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  LESSON DATA — 6 units, travel-focused
+// ═══════════════════════════════════════
+const UNITS = [
+{
+  id:'intro', title:'自我介紹', subtitle:'說出你是誰、從哪來、做什麼',
+  emoji:'👋', bg:'#FFF3CD', xpReward:15,
+  phrases:[
+    {en:"Hi! I'm [name].", zh:'嗨！我叫[名字]。'},
+    {en:"I'm from Taiwan.", zh:'我來自台灣。'},
+    {en:'Nice to meet you!', zh:'很高興認識你！'},
+    {en:'What do you do?', zh:'你是做什麼工作的？'},
+    {en:'How are you?', zh:'你好嗎？'},
+    {en:"I'm fine, thanks!", zh:'我很好，謝謝！'},
+    {en:'See you later!', zh:'待會見！'},
+  ],
+  exercises:[
+    {type:'translate', prompt:'你要怎麼說「我來自台灣」？', correct:2,
+     options:[{e:'🤝',t:'I from Taiwan'},{e:'🌏',t:'Taiwan I am'},{e:'✈️',t:"I'm from Taiwan"},{e:'🗺️',t:'I come Taiwan'}]},
+    {type:'listen', word:'Nice to meet you', pronun:'/naɪs tə miːt juː/', zh:'很高興認識你', correct:1,
+     options:[{e:'😔',t:'很高興離開你'},{e:'😊',t:'很高興認識你'},{e:'😐',t:'很高興見到她'},{e:'👋',t:'再見'}]},
+    {type:'arrange', prompt:'排列單字，組成「你好嗎？」', zh:'How / are / you', words:['How','are','you'], correct:'How are you'},
+    {type:'translate', prompt:'對方問 "What do you do?" 你應該怎麼回答？', correct:0,
+     options:[{e:'💼',t:"I'm a teacher."},{e:'🏠',t:"I'm fine, thanks."},{e:'🌍',t:"I'm from Taipei."},{e:'🎂',t:"I'm 25 years old."}]},
+    {type:'speak', prompt:'試著用英文介紹自己來自台灣', phrase:"I'm from Taiwan.", tip:'記憶技巧：I\'m = 我是，from = 來自，Taiwan = 台灣'},
+    {type:'listen', word:"I'm fine, thanks!", pronun:'/aɪm faɪn θæŋks/', zh:'我很好，謝謝！', correct:2,
+     options:[{e:'😴',t:'我很累'},{e:'😤',t:'我不太好'},{e:'😊',t:'我很好，謝謝！'},{e:'🤔',t:'我不確定'}]},
+    {type:'arrange', prompt:'排列單字，說出「很高興認識你！」', zh:'Nice / to / meet / you', words:['Nice','to','meet','you'], correct:'Nice to meet you'},
+    {type:'speak', prompt:'跟新認識的外國人說這句話！', phrase:'Nice to meet you!', tip:'嘴形：Nice(奈斯) to(投) meet(咪特) you(又)！'},
+  ]
+},
+{
+  id:'airport', title:'機場 & 交通', subtitle:'到達、搭車、問路不慌張',
+  emoji:'✈️', bg:'#D1ECF1', xpReward:20,
+  phrases:[
+    {en:'Where is the gate?', zh:'登機門在哪裡？'},
+    {en:'Where is the restroom?', zh:'廁所在哪裡？'},
+    {en:'My flight is delayed.', zh:'我的班機延誤了。'},
+    {en:'My luggage is missing.', zh:'我的行李不見了。'},
+    {en:'How do I get to the city center?', zh:'我要怎麼去市中心？'},
+    {en:'A ticket to [place], please.', zh:'請給我一張去[地點]的票。'},
+    {en:'How much is a taxi to [place]?', zh:'去[地點]計程車多少錢？'},
+  ],
+  exercises:[
+    {type:'translate', prompt:'你的行李不見了，你說：', correct:1,
+     options:[{e:'💼',t:'I lost my passport.'},{e:'🧳',t:'My luggage is missing.'},{e:'✈️',t:'My flight is delayed.'},{e:'🎫',t:'I lost my ticket.'}]},
+    {type:'listen', word:'Restroom', pronun:'/ˈrestruːm/', zh:'廁所', correct:3,
+     options:[{e:'🛏️',t:'臥室'},{e:'🍽️',t:'餐廳'},{e:'🚀',t:'休息室'},{e:'🚻',t:'廁所'}]},
+    {type:'arrange', prompt:'問「廁所在哪裡？」', zh:'Where / is / the / restroom', words:['Where','is','the','restroom'], correct:'Where is the restroom'},
+    {type:'speak', prompt:'你要如何問別人怎麼去市中心？', phrase:'How do I get to the city center?', tip:'「How do I get to...」是問路的萬用句！'},
+    {type:'translate', prompt:'你想買一張票去某地，你說：', correct:3,
+     options:[{e:'💳',t:'I want to pay.'},{e:'🗺️',t:'I need directions.'},{e:'🚌',t:'Is there a bus?'},{e:'🎫',t:'A ticket to downtown, please.'}]},
+    {type:'listen', word:'My flight is delayed', pronun:'/maɪ flaɪt ɪz dɪˈleɪd/', zh:'我的班機延誤了', correct:0,
+     options:[{e:'😤',t:'我的班機延誤了'},{e:'✅',t:'我的班機準時'},{e:'❌',t:'我的班機取消了'},{e:'🚀',t:'我的班機提前了'}]},
+    {type:'arrange', prompt:'說「我要去市中心」', zh:'I / want / to / go / to / the / city / center', words:['I','want','to','go','to','the','city','center'], correct:'I want to go to the city center'},
+    {type:'speak', prompt:'告訴計程車司機你要去哪！', phrase:'Take me to the city center, please.', tip:'Take me to = 帶我去。加 please 會更有禮貌！'},
+  ]
+},
+{
+  id:'directions', title:'問路 & 找地方', subtitle:'看懂指示、不再迷路',
+  emoji:'🗺️', bg:'#E2D9F3', xpReward:20,
+  phrases:[
+    {en:'Excuse me, where is [place]?', zh:'不好意思，[地點]在哪裡？'},
+    {en:'Go straight.', zh:'直走。'},
+    {en:'Turn left / Turn right.', zh:'左轉 / 右轉。'},
+    {en:'It\'s on your left/right.', zh:'在你的左/右手邊。'},
+    {en:'How far is it?', zh:'有多遠？'},
+    {en:'Is it walking distance?', zh:'走路得到嗎？'},
+    {en:'Can you show me on the map?', zh:'你可以在地圖上指給我看嗎？'},
+    {en:"I'm lost.", zh:'我迷路了。'},
+  ],
+  exercises:[
+    {type:'translate', prompt:'你迷路了，你說：', correct:2,
+     options:[{e:'😊',t:"I'm fine, thanks."},{e:'🗺️',t:'I need a map.'},{e:'😰',t:"I'm lost."},{e:'🏃',t:'I need to run.'}]},
+    {type:'listen', word:'Turn left', pronun:'/tɜːrn lɛft/', zh:'左轉', correct:1,
+     options:[{e:'➡️',t:'右轉'},{e:'⬅️',t:'左轉'},{e:'⬆️',t:'直走'},{e:'↩️',t:'回頭'}]},
+    {type:'arrange', prompt:'問「最近的便利商店在哪裡？」', zh:'Excuse / me / where / is / the / nearest / store', words:['Excuse','me,','where','is','the','nearest','store?'], correct:'Excuse me, where is the nearest store?'},
+    {type:'speak', prompt:'你迷路了，跟路人開口求助！', phrase:"Excuse me, I'm lost. Can you help me?", tip:'Excuse me 先開口，對方更願意幫忙！'},
+    {type:'translate', prompt:'對方說 "Go straight, then turn right." 意思是？', correct:3,
+     options:[{e:'⬅️',t:'左轉再直走'},{e:'↩️',t:'右轉再直走'},{e:'⬆️',t:'一直直走'},{e:'➡️',t:'直走再右轉'}]},
+    {type:'listen', word:'Is it walking distance?', pronun:'/ɪz ɪt ˈwɔːkɪŋ ˈdɪstəns/', zh:'走路得到嗎？', correct:0,
+     options:[{e:'🚶',t:'走路得到嗎？'},{e:'🚌',t:'要搭公車嗎？'},{e:'🚇',t:'要搭捷運嗎？'},{e:'🚕',t:'要叫計程車嗎？'}]},
+    {type:'arrange', prompt:'「可以在地圖上給我看嗎？」', zh:'Can / you / show / me / on / the / map', words:['Can','you','show','me','on','the','map?'], correct:'Can you show me on the map?'},
+    {type:'speak', prompt:'問路的萬用句，一定要會！', phrase:'Excuse me, where is the nearest subway station?', tip:'subway station = 捷運站。anywhere = 任何地方都適用！'},
+  ]
+},
+{
+  id:'restaurant', title:'餐廳 & 點餐', subtitle:'點菜、過敏、結帳都沒問題',
+  emoji:'🍽️', bg:'#FFE5D9', xpReward:25,
+  phrases:[
+    {en:'A table for two, please.', zh:'兩位，謝謝。'},
+    {en:'Can I see the menu?', zh:'可以給我菜單嗎？'},
+    {en:"I'd like to order this.", zh:'我想要點這個。'},
+    {en:'What do you recommend?', zh:'你推薦什麼？'},
+    {en:"I'm allergic to [food].", zh:'我對[食物]過敏。'},
+    {en:'No spicy, please.', zh:'請不要辣。'},
+    {en:'Check, please.', zh:'買單，謝謝。'},
+    {en:'Can I pay by card?', zh:'可以刷卡嗎？'},
+  ],
+  exercises:[
+    {type:'translate', prompt:'你想看菜單，你說：', correct:1,
+     options:[{e:'💰',t:'Check, please.'},{e:'📋',t:'Can I see the menu?'},{e:'🍽️',t:"I'd like to order."},{e:'👨‍🍳',t:'What do you recommend?'}]},
+    {type:'listen', word:"I'm allergic to nuts.", pronun:'/aɪm əˈlɜːrdʒɪk tə nʌts/', zh:'我對堅果過敏。', correct:2,
+     options:[{e:'🌶️',t:'我不喜歡辣'},{e:'🥜',t:'我很愛堅果'},{e:'⚠️',t:'我對堅果過敏'},{e:'🍫',t:'我對巧克力過敏'}]},
+    {type:'arrange', prompt:'問「你推薦什麼？」', zh:'What / do / you / recommend', words:['What','do','you','recommend?'], correct:'What do you recommend?'},
+    {type:'speak', prompt:'你想點菜，告訴服務生！', phrase:"I'd like to order this, please.", tip:"I'd like = 我想要（比 I want 更有禮貌！）"},
+    {type:'translate', prompt:'你想結帳，你說：', correct:3,
+     options:[{e:'📋',t:'Can I see the menu?'},{e:'🤔',t:'What do you recommend?'},{e:'💳',t:'Can I pay by card?'},{e:'🧾',t:'Check, please.'}]},
+    {type:'listen', word:'Can I pay by card?', pronun:'/kæn aɪ peɪ baɪ kɑːrd/', zh:'可以刷卡嗎？', correct:0,
+     options:[{e:'💳',t:'可以刷卡嗎？'},{e:'💵',t:'可以付現嗎？'},{e:'📱',t:'可以用手機付嗎？'},{e:'💰',t:'多少錢？'}]},
+    {type:'arrange', prompt:'說「請不要加辣」', zh:'No / spicy / please', words:['No','spicy,','please.'], correct:'No spicy, please.'},
+    {type:'speak', prompt:'你有食物過敏，一定要說清楚！', phrase:"I'm allergic to seafood.", tip:'seafood = 海鮮。換成 nuts/gluten/dairy 也適用！'},
+  ]
+},
+{
+  id:'shopping', title:'購物 & 殺價', subtitle:'問價格、試穿、砍價',
+  emoji:'🛍️', bg:'#D4EDDA', xpReward:25,
+  phrases:[
+    {en:'How much is this?', zh:'這個多少錢？'},
+    {en:'Can I try this on?', zh:'我可以試穿嗎？'},
+    {en:'Do you have a bigger/smaller size?', zh:'有更大/小的尺寸嗎？'},
+    {en:'Do you have other colors?', zh:'有其他顏色嗎？'},
+    {en:"I'll take it.", zh:'我要買這個。'},
+    {en:'Can I get a discount?', zh:'可以打折嗎？'},
+    {en:'Where is the fitting room?', zh:'試衣間在哪裡？'},
+    {en:'Can I have a receipt?', zh:'可以給我收據嗎？'},
+  ],
+  exercises:[
+    {type:'translate', prompt:'你想知道價格，你說：', correct:0,
+     options:[{e:'💰',t:'How much is this?'},{e:'🛍️',t:"I'll take it."},{e:'👗',t:'Can I try this on?'},{e:'🧾',t:'Can I have a receipt?'}]},
+    {type:'listen', word:'Can I try this on?', pronun:'/kæn aɪ traɪ ðɪs ɒn/', zh:'我可以試穿嗎？', correct:3,
+     options:[{e:'💰',t:'這個多少錢？'},{e:'🎁',t:'這個是禮物嗎？'},{e:'🔄',t:'可以換貨嗎？'},{e:'👗',t:'我可以試穿嗎？'}]},
+    {type:'arrange', prompt:'問「試衣間在哪裡？」', zh:'Where / is / the / fitting / room', words:['Where','is','the','fitting','room?'], correct:'Where is the fitting room?'},
+    {type:'speak', prompt:'你看上一件衣服，想試穿！', phrase:'Can I try this on, please?', tip:'On = 穿上去的感覺。Try on = 試穿！'},
+    {type:'translate', prompt:'你想要打折，你說：', correct:2,
+     options:[{e:'🧾',t:'Can I have a receipt?'},{e:'💳',t:'Can I pay by card?'},{e:'🏷️',t:'Can I get a discount?'},{e:'📦',t:'Can I get a bag?'}]},
+    {type:'listen', word:"I'll take it.", pronun:'/aɪl teɪk ɪt/', zh:'我要買這個。', correct:1,
+     options:[{e:'🤔',t:'我在考慮中'},{e:'✅',t:'我要買這個'},{e:'❌',t:'我不買了'},{e:'🔄',t:'我要換一個'}]},
+    {type:'arrange', prompt:'問「有其他顏色嗎？」', zh:'Do / you / have / other / colors', words:['Do','you','have','other','colors?'], correct:'Do you have other colors?'},
+    {type:'speak', prompt:'找到喜歡的，決定買下去！', phrase:"I'll take this one, please.", tip:'I\'ll take = 我要拿這個，是購物最實用的一句！'},
+  ]
+},
+{
+  id:'smalltalk', title:'閒聊 & 交朋友', subtitle:'聊天、分享、建立友誼',
+  emoji:'💬', bg:'#E8D5FF', xpReward:30,
+  phrases:[
+    {en:'What are your hobbies?', zh:'你有什麼興趣？'},
+    {en:'I like traveling and food.', zh:'我喜歡旅行和美食。'},
+    {en:'Have you ever been to Taiwan?', zh:'你有去過台灣嗎？'},
+    {en:"What's the weather like today?", zh:'今天天氣怎麼樣？'},
+    {en:'Can I follow you on Instagram?', zh:'我可以追蹤你的Instagram嗎？'},
+    {en:"Let's keep in touch!", zh:'保持聯絡！'},
+    {en:'It was nice talking to you!', zh:'和你聊天很開心！'},
+    {en:'You should visit Taiwan!', zh:'你應該來台灣玩！'},
+  ],
+  exercises:[
+    {type:'translate', prompt:'你想問對方的興趣，你說：', correct:1,
+     options:[{e:'💼',t:'What do you do?'},{e:'🎯',t:'What are your hobbies?'},{e:'🌍',t:'Where are you from?'},{e:'🎂',t:'How old are you?'}]},
+    {type:'listen', word:'Have you ever been to Taiwan?', pronun:'/hæv juː ˈɛvər biːn tə taɪˈwɑːn/', zh:'你有去過台灣嗎？', correct:2,
+     options:[{e:'🗓️',t:'你什麼時候去台灣？'},{e:'✈️',t:'你要去台灣嗎？'},{e:'🌏',t:'你有去過台灣嗎？'},{e:'❓',t:'台灣在哪裡？'}]},
+    {type:'arrange', prompt:'說「和你聊天很開心！」', zh:'It / was / nice / talking / to / you', words:['It','was','nice','talking','to','you!'], correct:'It was nice talking to you!'},
+    {type:'speak', prompt:'告訴新朋友你喜歡什麼！', phrase:'I like traveling and trying new food!', tip:'Try new food = 嘗試新食物。旅人最愛說這句！'},
+    {type:'translate', prompt:'你想加對方的社群媒體，你說：', correct:3,
+     options:[{e:'📞',t:'Can I call you?'},{e:'📧',t:'Can I email you?'},{e:'💬',t:"Let's keep in touch!"},{e:'📱',t:'Can I follow you on Instagram?'}]},
+    {type:'listen', word:"Let's keep in touch!", pronun:'/lɛts kiːp ɪn tʌtʃ/', zh:'保持聯絡！', correct:0,
+     options:[{e:'🤝',t:'保持聯絡！'},{e:'👋',t:'再見！'},{e:'😊',t:'很高興認識你！'},{e:'🏃',t:'先走了！'}]},
+    {type:'arrange', prompt:'邀請對方來台灣玩！', zh:'You / should / visit / Taiwan', words:['You','should','visit','Taiwan!'], correct:'You should visit Taiwan!'},
+    {type:'speak', prompt:'和新朋友說再見，保持聯絡！', phrase:"It was nice meeting you! Let's keep in touch!", tip:'一口氣說完，對方會對你印象深刻！'},
+  ]
+}
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+const S = {
+  hearts:3, xp:0, streak:0,
+  completedUnits:new Set(), unitProgress:{},
+  lastPlayDate:null,
+  // session
+  unitId:null, exIdx:0,
+  selectedOpt:null, arrangeSlots:[], speakResult:null,
+  checked:false, correct:0, wrong:0, startTime:0,
+};
+
+function loadState() {
+  try {
+    const d = JSON.parse(localStorage.getItem('englishgo2') || '{}');
+    S.hearts = d.hearts ?? 3;
+    S.xp = d.xp ?? 0;
+    S.streak = d.streak ?? 0;
+    S.completedUnits = new Set(d.completedUnits || []);
+    S.unitProgress = d.unitProgress || {};
+    S.lastPlayDate = d.lastPlayDate || null;
+    const today = new Date().toDateString();
+    if (S.lastPlayDate && S.lastPlayDate !== today) {
+      const diff = Math.floor((Date.now() - new Date(S.lastPlayDate)) / 86400000);
+      if (diff > 1) S.streak = 0;
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem('englishgo2', JSON.stringify({
+    hearts:S.hearts, xp:S.xp, streak:S.streak,
+    completedUnits:[...S.completedUnits],
+    unitProgress:S.unitProgress,
+    lastPlayDate:new Date().toDateString(),
+  }));
+}
+
+// ═══════════════════════════════════════
+//  SPEECH SYNTHESIS
+// ═══════════════════════════════════════
+function speak(text, rate=0.85) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = rate; u.pitch = 1;
+  window.speechSynthesis.speak(u);
+}
+
+// ═══════════════════════════════════════
+//  SPEECH RECOGNITION
+// ═══════════════════════════════════════
+let isRecording = false;
+let recAttempts = 0;
+
+function hasSpeechRecognition() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+function startRecording() {
+  if (isRecording) return;
+  const ex = getExercise();
+  if (!ex) return;
+
+  if (!hasSpeechRecognition()) {
+    // fallback: just mark as practiced
+    document.getElementById('recResultEl').textContent = '⚠️ 此裝置不支援語音辨識，請跟著唸並點「我已練習完畢」';
+    document.getElementById('skipSpeakBtn').style.display = 'block';
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const r = new SR();
+  r.lang = 'en-US';
+  r.interimResults = false;
+  r.maxAlternatives = 5;
+
+  const recBtn = document.getElementById('recBtn');
+
+  r.onstart = () => {
+    isRecording = true;
+    recBtn.textContent = '🔴 錄音中...';
+    recBtn.classList.add('recording');
+    document.getElementById('recResultEl').textContent = '🎤 請說話...';
+    document.getElementById('recResultEl').className = 'rec-result';
+  };
+
+  r.onresult = (event) => {
+    isRecording = false;
+    recBtn.textContent = '🎤 再說一次';
+    recBtn.classList.remove('recording');
+
+    const alts = Array.from(event.results[0]).map(a => a.transcript);
+    const best = alts[0] || '';
+    recAttempts++;
+
+    const score = similarity(best, ex.phrase);
+    const recEl = document.getElementById('recResultEl');
+    recEl.textContent = '你說：「' + best + '」';
+
+    if (score >= 0.55) {
+      recEl.className = 'rec-result correct';
+      recEl.textContent = '✅ 你說：「' + best + '」（說得很好！）';
+      S.speakResult = 'correct';
+      setCheckActive(true);
+    } else {
+      recEl.className = 'rec-result wrong';
+      recEl.textContent = '❌ 你說：「' + best + '」（再試一次！）';
+      S.speakResult = 'wrong';
+      if (recAttempts >= 2) {
+        document.getElementById('skipSpeakBtn').style.display = 'block';
+      }
+    }
+  };
+
+  r.onerror = (e) => {
+    isRecording = false;
+    recBtn.textContent = '🎤 再說一次';
+    recBtn.classList.remove('recording');
+    const recEl = document.getElementById('recResultEl');
+    if (e.error === 'not-allowed') {
+      recEl.textContent = '⚠️ 需要麥克風權限。請跟著唸並點「我已練習完畢」';
+      document.getElementById('skipSpeakBtn').style.display = 'block';
+    } else if (e.error === 'no-speech') {
+      recEl.textContent = '沒有偵測到聲音，請再試一次';
+    }
+  };
+
+  r.onend = () => {
+    isRecording = false;
+    if (!recBtn.classList.contains('recording')) {
+      recBtn.classList.remove('recording');
+    }
+  };
+
+  r.start();
+}
+
+function similarity(a, b) {
+  const norm = s => s.toLowerCase().replace(/[^a-z\s']/g,'').trim().split(/\s+/);
+  const wa = norm(a), wb = norm(b);
+  const matches = wb.filter(w => wa.some(h => h === w || h.startsWith(w.slice(0,-1))));
+  return matches.length / wb.length;
+}
+
+function skipSpeak() {
+  S.speakResult = 'skipped';
+  setCheckActive(true);
+  document.getElementById('skipSpeakBtn').style.display = 'none';
+  const recEl = document.getElementById('recResultEl');
+  recEl.className = 'rec-result heard';
+  recEl.textContent = '✏️ 已標記為練習完畢';
+}
+
+// ═══════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════
+function renderHome() {
+  loadState();
+  document.getElementById('stat-streak').textContent = S.streak;
+  document.getElementById('stat-xp').textContent = S.xp;
+  const h = Math.max(0, S.hearts);
+  document.getElementById('stat-hearts').textContent = '❤️'.repeat(h) + '🖤'.repeat(3 - h);
+
+  // Countdown — target Jul 31
+  const target = new Date('2026-07-31');
+  const days = Math.max(0, Math.ceil((target - Date.now()) / 86400000));
+  document.getElementById('daysLeft').textContent = days;
+
+  const body = document.getElementById('homeBody');
+  body.innerHTML = '';
+
+  UNITS.forEach((unit, i) => {
+    const unlocked = i === 0 || S.completedUnits.has(UNITS[i-1].id);
+    const done = S.completedUnits.has(unit.id);
+    const prog = S.unitProgress[unit.id] || 0;
+    const pct = done ? 100 : Math.round(prog / unit.exercises.length * 100);
+
+    const card = document.createElement('div');
+    card.className = 'unit-card' + (unlocked ? '' : ' locked');
+    card.innerHTML = `
+      <div class="unit-header">
+        <div class="unit-emoji" style="background:${unit.bg}">${unlocked ? unit.emoji : '🔒'}</div>
+        <div class="unit-info">
+          <div class="unit-title">${unit.title}</div>
+          <div class="unit-sub">${unit.subtitle}</div>
+        </div>
+        <span class="unit-badge ${done?'badge-done':unlocked?'badge-new':'badge-lock'}">
+          ${done ? '✓ 完成' : unlocked ? (prog > 0 ? Math.round(pct)+'%' : '開始') : '🔒 鎖定'}
+        </span>
+      </div>
+      <div class="unit-progress-bar"><div class="unit-progress-fill" style="width:${pct}%"></div></div>
+      ${unlocked ? `
+        <button class="start-btn" onclick="startLesson('${unit.id}')">
+          ${done ? '🔄 再練習一次' : prog > 0 ? '▶ 繼續學習' : '▶ 開始學習'} &nbsp; ⚡${unit.xpReward} XP
+        </button>
+        <button class="sheet-btn" onclick="openSheet('${unit.id}')">📋 查看本課常用句子</button>
+      ` : `
+        <button class="start-btn" disabled>🔒 完成「${i > 0 ? UNITS[i-1].title : ''}」以解鎖</button>
+      `}
+    `;
+    body.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════
+//  PHRASE SHEET
+// ═══════════════════════════════════════
+function openSheet(unitId) {
+  const unit = UNITS.find(u => u.id === unitId);
+  document.getElementById('sheetTitle').textContent = unit.emoji + ' ' + unit.title + ' 常用句';
+  document.getElementById('sheetBody').innerHTML = unit.phrases.map(p => `
+    <div class="phrase-row">
+      <div style="flex:1">
+        <div class="phrase-en">${p.en}</div>
+        <div class="phrase-zh">${p.zh}</div>
+      </div>
+      <button class="phrase-play" onclick="speak('${p.en.replace(/\[.*?\]/g,'something')}')">🔊</button>
+    </div>
+  `).join('');
+  document.getElementById('phraseModal').classList.add('open');
+}
+function closeSheet() {
+  document.getElementById('phraseModal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+//  LESSON FLOW
+// ═══════════════════════════════════════
+function startLesson(unitId) {
+  if (S.hearts <= 0) { showScreen('screen-nohearts'); return; }
+  S.unitId = unitId;
+  S.exIdx = 0;
+  S.selectedOpt = null;
+  S.arrangeSlots = [];
+  S.speakResult = null;
+  S.checked = false;
+  S.correct = 0; S.wrong = 0;
+  S.startTime = Date.now();
+  recAttempts = 0;
+  showScreen('screen-lesson');
+  renderExercise();
+}
+
+const getUnit = () => UNITS.find(u => u.id === S.unitId);
+const getExercise = () => getUnit()?.exercises[S.exIdx];
+
+function renderExercise() {
+  const unit = getUnit();
+  const ex = getExercise();
+  if (!ex) { completeLesson(); return; }
+
+  const pct = (S.exIdx / unit.exercises.length) * 100;
+  document.getElementById('lessonProgress').style.width = pct + '%';
+  const h = Math.max(0, S.hearts);
+  document.getElementById('lessonHearts').textContent = '❤️'.repeat(h) + '🖤'.repeat(3 - h);
+
+  hideFeedback();
+  document.getElementById('checkArea').style.display = 'block';
+  setCheckActive(false);
+  S.selectedOpt = null; S.arrangeSlots = []; S.speakResult = null;
+  S.checked = false;
+  recAttempts = 0;
+  isRecording = false;
+  window.speechSynthesis?.cancel();
+
+  const wrap = document.getElementById('exerciseWrap');
+  wrap.innerHTML = '';
+  if (ex.type === 'translate') renderTranslate(ex, wrap);
+  else if (ex.type === 'listen') renderListen(ex, wrap);
+  else if (ex.type === 'arrange') renderArrange(ex, wrap);
+  else if (ex.type === 'speak') renderSpeak(ex, wrap);
+}
+
+// ── Translate ──
+function renderTranslate(ex, wrap) {
+  wrap.innerHTML = `
+    <div class="q-type-tag">🔤 翻譯題</div>
+    <div class="q-text">${ex.prompt}</div>
+    <div class="options-grid">${ex.options.map((o,i) => `
+      <button class="option-btn" id="opt${i}" onclick="selectOpt(${i})">
+        <span class="opt-emoji">${o.e}</span>
+        <span class="opt-text">${o.t}</span>
+      </button>`).join('')}
+    </div>`;
+}
+
+// ── Listen ──
+function renderListen(ex, wrap) {
+  wrap.innerHTML = `
+    <div class="q-type-tag">🔊 聽力題</div>
+    <div class="q-text">${ex.prompt}</div>
+    <div class="listen-card" onclick="speak('${ex.word}')">
+      <div class="listen-icon">🔊</div>
+      <div class="listen-text">${ex.word}</div>
+      <div class="listen-pronun">${ex.pronun}</div>
+      <div class="listen-hint">點擊播放發音</div>
+    </div>
+    <div class="options-grid">${ex.options.map((o,i) => `
+      <button class="option-btn" id="opt${i}" onclick="selectOpt(${i})">
+        <span class="opt-emoji">${o.e}</span>
+        <span class="opt-text">${o.t}</span>
+      </button>`).join('')}
+    </div>`;
+  setTimeout(() => speak(ex.word), 300);
+}
+
+function selectOpt(i) {
+  if (S.checked) return;
+  document.querySelectorAll('.option-btn').forEach((b,idx) => b.classList.toggle('selected', idx===i));
+  S.selectedOpt = i;
+  setCheckActive(true);
+}
+
+// ── Arrange ──
+function renderArrange(ex, wrap) {
+  const shuffled = [...ex.words].sort(() => Math.random() - 0.5);
+  wrap.innerHTML = `
+    <div class="q-type-tag">📝 排列句子</div>
+    <div class="q-text">${ex.prompt}</div>
+    <div class="q-sub">提示：「${ex.zh}」</div>
+    <div class="sentence-slots" id="slots">
+      <span class="slot-placeholder" id="ph">點選下方單字...</span>
+    </div>
+    <div class="word-bank" id="bank">${shuffled.map((w,i) =>
+      `<button class="word-chip" id="wc${i}" data-word="${w}" data-i="${i}" onclick="addWord(this)">${w}</button>`
+    ).join('')}</div>`;
+}
+
+function addWord(btn) {
+  if (S.checked || btn.classList.contains('used')) return;
+  btn.classList.add('used');
+  S.arrangeSlots.push({ word: btn.dataset.word, idx: btn.dataset.i });
+  document.getElementById('ph')?.remove();
+  const slots = document.getElementById('slots');
+  const chip = document.createElement('button');
+  chip.className = 'word-chip in-slot';
+  chip.textContent = btn.dataset.word;
+  chip.dataset.i = btn.dataset.i;
+  chip.onclick = () => removeWord(chip, btn.dataset.i);
+  slots.appendChild(chip);
+  setCheckActive(S.arrangeSlots.length > 0);
+}
+
+function removeWord(chip, idx) {
+  if (S.checked) return;
+  S.arrangeSlots = S.arrangeSlots.filter(s => s.idx !== idx);
+  chip.remove();
+  document.getElementById('wc'+idx)?.classList.remove('used');
+  const slots = document.getElementById('slots');
+  if (!slots.querySelector('.word-chip')) {
+    const ph = document.createElement('span');
+    ph.className = 'slot-placeholder'; ph.id = 'ph';
+    ph.textContent = '點選下方單字...';
+    slots.appendChild(ph);
+  }
+  setCheckActive(S.arrangeSlots.length > 0);
+}
+
+// ── Speak ──
+function renderSpeak(ex, wrap) {
+  const hasMic = hasSpeechRecognition();
+  wrap.innerHTML = `
+    <div class="q-type-tag">🎤 口說練習</div>
+    <div class="q-text">${ex.prompt}</div>
+    <div class="speak-card">
+      <div class="speak-phrase">${ex.phrase}</div>
+      <div class="speak-pronun">💡 ${ex.tip}</div>
+    </div>
+    <div class="speak-controls">
+      <button class="speak-btn btn-play" onclick="speak('${ex.phrase}', 0.75)">🔊 聽示範</button>
+      ${hasMic
+        ? `<button class="speak-btn btn-record" id="recBtn" onclick="startRecording()">🎤 開始說</button>`
+        : `<button class="speak-btn btn-record" id="recBtn" onclick="skipSpeak()" style="background:var(--gray-100);border-color:var(--gray-400);color:var(--gray-600)">✅ 我已跟著唸了</button>`
+      }
+    </div>
+    <div class="rec-result" id="recResultEl">
+      ${hasMic ? '先聽示範，再點「開始說」用麥克風說英文！' : '先聽示範，跟著唸幾次後點按鈕繼續。'}
+    </div>
+    <div class="skip-link" id="skipSpeakBtn" style="display:none" onclick="skipSpeak()">跳過此題（練習完畢）</div>
+  `;
+  setTimeout(() => speak(ex.phrase, 0.75), 400);
+}
+
+// ═══════════════════════════════════════
+//  CHECK
+// ═══════════════════════════════════════
+function checkAnswer() {
+  if (S.checked) return;
+  const ex = getExercise();
+  let isCorrect = false;
+
+  if (ex.type === 'translate' || ex.type === 'listen') {
+    if (S.selectedOpt === null) return;
+    isCorrect = S.selectedOpt === ex.correct;
+    document.querySelectorAll('.option-btn').forEach((btn,i) => {
+      btn.disabled = true;
+      if (i === ex.correct) btn.classList.add('correct');
+      else if (i === S.selectedOpt && !isCorrect) btn.classList.add('wrong');
+    });
+  } else if (ex.type === 'arrange') {
+    if (!S.arrangeSlots.length) return;
+    const formed = S.arrangeSlots.map(s => s.word).join(' ');
+    isCorrect = formed.toLowerCase() === ex.correct.toLowerCase();
+    document.querySelectorAll('#slots .word-chip').forEach(c => {
+      c.classList.remove('in-slot');
+      c.classList.add(isCorrect ? 'correct' : 'wrong');
+    });
+    document.querySelectorAll('#bank .word-chip').forEach(c => { c.disabled = true; });
+    if (!isCorrect) {
+      // show correct answer
+      document.getElementById('slots').innerHTML = `<span style="font-size:14px;font-weight:700;color:var(--green-dark)">✅ ${ex.correct}</span>`;
+    }
+  } else if (ex.type === 'speak') {
+    if (!S.speakResult) return;
+    isCorrect = S.speakResult === 'correct' || S.speakResult === 'skipped';
+  }
+
+  S.checked = true;
+  document.getElementById('checkArea').style.display = 'none';
+
+  if (isCorrect) {
+    S.correct++;
+    showFeedback(true, ex);
+  } else {
+    S.wrong++;
+    S.hearts = Math.max(0, S.hearts - 1);
+    const h = S.hearts;
+    document.getElementById('lessonHearts').textContent = '❤️'.repeat(h) + '🖤'.repeat(3-h);
+
+    const wrap = document.getElementById('exerciseWrap');
+    wrap.classList.remove('shake');
+    void wrap.offsetWidth;
+    wrap.classList.add('shake');
+    showFeedback(false, ex);
+
+    if (S.hearts <= 0) {
+      setTimeout(() => { saveState(); showScreen('screen-nohearts'); }, 1800);
+      return;
+    }
+  }
+}
+
+const WIN_MSGS = ['太棒了！', '說得很好！', '完美！', '繼續保持！', '你真厲害！'];
+
+function showFeedback(correct, ex) {
+  const bar = document.getElementById('feedbackBar');
+  bar.className = 'feedback-bar ' + (correct ? 'correct' : 'wrong');
+  bar.style.display = 'flex';
+  document.getElementById('fbIcon').textContent = correct ? '✅' : '❌';
+  document.getElementById('fbTitle').textContent = correct
+    ? WIN_MSGS[Math.floor(Math.random() * WIN_MSGS.length)]
+    : '答錯了！';
+
+  let sub = '';
+  if (!correct) {
+    if (ex.type === 'translate' || ex.type === 'listen') sub = '正確答案：' + ex.options[ex.correct].t;
+    else if (ex.type === 'arrange') sub = '正確答案：' + ex.correct;
+    else if (ex.type === 'speak') sub = '參考：' + ex.phrase;
+  } else if (ex.type === 'speak' && ex.phrase) {
+    sub = ex.phrase;
+  }
+  document.getElementById('fbSub').textContent = sub;
+}
+
+function hideFeedback() {
+  const bar = document.getElementById('feedbackBar');
+  bar.style.display = 'none';
+  bar.className = 'feedback-bar';
+}
+
+function nextExercise() {
+  S.exIdx++;
+  const unit = getUnit();
+  if (S.exIdx >= unit.exercises.length) completeLesson();
+  else renderExercise();
+}
+
+function setCheckActive(active) {
+  const btn = document.getElementById('checkBtn');
+  btn.className = 'check-btn ' + (active ? 'active' : 'inactive');
+}
+
+// ═══════════════════════════════════════
+//  COMPLETE
+// ═══════════════════════════════════════
+function completeLesson() {
+  const unit = getUnit();
+  const elapsed = Math.round((Date.now() - S.startTime) / 1000);
+  const total = S.correct + S.wrong;
+  const acc = total ? Math.round(S.correct / total * 100) : 100;
+  const xp = Math.round(unit.xpReward * (acc / 100));
+  S.xp += xp;
+  S.completedUnits.add(unit.id);
+  S.unitProgress[unit.id] = unit.exercises.length;
+  const today = new Date().toDateString();
+  if (S.lastPlayDate !== today) { S.streak++; S.lastPlayDate = today; }
+  saveState();
+
+  document.getElementById('completeSub').textContent = `完成「${unit.title}」！`;
+  document.getElementById('xpGained').textContent = `+${xp} XP`;
+  document.getElementById('cAcc').textContent = acc + '%';
+  document.getElementById('cTime').textContent = fmtTime(elapsed);
+  document.getElementById('cXP').textContent = xp;
+  showScreen('screen-complete');
+  fireConfetti();
+}
+
+const fmtTime = s => s < 60 ? s + 's' : Math.floor(s/60) + 'm ' + (s%60) + 's';
+
+// ═══════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() {
+  window.speechSynthesis?.cancel();
+  isRecording = false;
+  renderHome();
+  showScreen('screen-home');
+}
+
+function refillHearts() {
+  S.hearts = 3;
+  saveState();
+  if (S.unitId) { showScreen('screen-lesson'); renderExercise(); }
+  else goHome();
+}
+
+// ═══════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════
+function fireConfetti() {
+  const colors = ['#58CC02','#1CB0F6','#FFC800','#FF4B4B','#CE82FF','#FF9600','#ffffff'];
+  for (let i = 0; i < 70; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `
+      left:${Math.random()*100}vw;
+      top:-10px;
+      background:${colors[i % colors.length]};
+      width:${7+Math.random()*8}px;height:${7+Math.random()*8}px;
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      animation-duration:${1.6+Math.random()*2}s;
+      animation-delay:${Math.random()*.9}s;
+    `;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  }
+}
+
+// ═══════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('screen-lesson').classList.contains('active')) return;
+  if (e.key === 'Enter') { if (!S.checked) checkAnswer(); else nextExercise(); }
+  if (e.key === 'Escape') goHome();
+  if (['1','2','3','4'].includes(e.key)) {
+    const ex = getExercise();
+    if ((ex?.type === 'translate' || ex?.type === 'listen') && !S.checked)
+      selectOpt(parseInt(e.key) - 1);
+  }
+});
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+loadState();
+renderHome();
+</script>
+</body>
+</html>
